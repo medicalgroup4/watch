@@ -105,11 +105,16 @@ int createMessage(const String& payload) {
     message++;
   }
   int new_message_id = String(accumulator_id).toInt();
+  int new_message_severity = String(accumulator_severity).toInt();
 
   if(messageExists(new_message_id)) return message_amt - 1; //if we already have this message, just return
+  // if the message is not in the correct format, just return:
+  if(delimiters_counter != 4) return message_amt - 1;
+  if(new_message_id == 0) return message_amt - 1;
+  if(new_message_severity == 0) return message_amt - 1;
   
   message_id[message_amt] = new_message_id;
-  message_severity[message_amt] = String(accumulator_severity).toInt();
+  message_severity[message_amt] = new_message_severity;
   message_location[message_amt] = String(accumulator_location);
   message_message[message_amt] = String(accumulator_message);
   message_amt++;
