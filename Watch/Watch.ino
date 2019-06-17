@@ -143,7 +143,7 @@ void loop() {
     updateScreen();
     performEffects();
 
-    display.drawProgressBar(90, 0, 30, 10, percentage);
+//    display.drawProgressBar(90, 0, 30, 10, percentage);
     display.display();
 
     prevMillis = millis();
