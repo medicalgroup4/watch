@@ -1,4 +1,4 @@
-#include <ESP32HTTPUpdateServer.h>
+//#include <ESP32HTTPUpdateServer.h>
 #include <EspMQTTClient.h>
 
 
@@ -74,10 +74,10 @@ void setup() {
   display.display();
 
 
+  // connect to wifi to get the time:
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   Serial.print("Connecting to WiFi");
   client.enableDebuggingMessages(); // Enable debugging messages sent to serial output
-  client.enableLastWillMessage("TestClient/lastwill", "I am going offline");  // You can activate the retain flag by setting the third parameter to true
 
   display.clear();
   text("Connecting");
@@ -101,26 +101,33 @@ void setup() {
   Serial.print("Connected with IP: ");
   Serial.println(ip);
 
+  // start the time client
   timeClient.begin();
   delay(2000);
   updateScreen();
 }
 
+// gets called when we connect to the MQTT broker
 void onConnectionEstablished()
 {
+  // subscribe to the topic to receive messages
   client.subscribe(MESSAGE_TOPIC, messageCallback);
+  // subscribe to the topic to make sure confirmed messages also get deleted from this watch
   client.subscribe(CONFIRM_TOPIC, confirmedCallback);
+  // send a connect message to receive all unconfirmed messages
   client.publish(CONNECT_TOPIC, "");
 }
 
 
 
 void loop() {
+  // check the battery percentage every 5 seconds
   if(millis() - batteryCheckMillis >= 5000) {
     percentage = calculateBatteryPercentage();
     batteryCheckMillis = millis();
   }
-  
+
+  // update every 50 milliseconds
   if (millis() - prevMillis >= UPDATEINTERVAL) {
     timeClient.update();
 
@@ -128,10 +135,11 @@ void loop() {
 
     detectButtons();
 
+    // if a left or right touch is detected, wait a little bit to give the user time to touch both buttons if they want to
     if (left || right) {
       if(millis() - interactionMillis >= TOUCHWAITTIME) {
         button_interaction();
-        triggered = true;
+        triggered = true; // variable to make sure the button trigger only happens once per touch
       }
       interactionMillis++;
     } else {
@@ -139,40 +147,49 @@ void loop() {
       triggered = false;
     }
 
+    // update the screen
     display.clear();
     updateScreen();
     performEffects();
-
-//    display.drawProgressBar(90, 0, 30, 10, percentage);
     display.display();
 
     prevMillis = millis();
   }
 }
 
+
+// if the button(s) is/are pressed
 void button_interaction() {
-  if (left && right && !triggered) {
-    bothEffect = true;
-    if(curr_message_amt > 0) {
-      client.publish(CONFIRM_TOPIC, String(message_id[curr_message_index]));
-      removeMessage(curr_message_index);
+  
+  if (left && right && !triggered) { //if both buttons are pressed
+    bothEffect = true; // trigger the correct animation
+
+    // delete the current message, if there are messages stored:
+    if(message_amt > 0) {
+      client.publish(CONFIRM_TOPIC, String(message_id[message_index]));
+      removeMessage(message_index);
       Serial.println("sending delete");
-    }    
-  } else if (left && !triggered) {
-    leftEffect = true;
-    curr_message_index--;
-    if (curr_message_index < 0) {
-      curr_message_index = curr_message_amt - 1;
     }
-  } else if (right && !triggered) {
-    rightEffect = true;
-    curr_message_index++;
-    if (curr_message_index > curr_message_amt - 1) {
-      curr_message_index = 0;
+  } else if (left && !triggered) { //if the left button is pressed
+    leftEffect = true; // trigger the correct animation
+    
+    // go to the previous message:
+    message_index--;
+    if (message_index < 0) {
+      message_index = message_amt - 1;
+    }
+  } else if (right && !triggered) { //if the right button is pressed
+    rightEffect = true; // trigger the correct animation
+    
+    // go to the next message:
+    message_index++;
+    if (message_index > message_amt - 1) {
+      message_index = 0;
     }
   }
 }
 
+// draw the animations
 void performEffects() {
   if (leftEffect) {
     if (leftPos++ >= effectLimit) {
@@ -199,6 +216,7 @@ void performEffects() {
   }
 }
 
+// test which buttons are being touched
 void detectButtons() {
   Serial.println("Touchread T1: " + touchRead(T1));
   Serial.println("Touchread T2: " + touchRead(T2));
