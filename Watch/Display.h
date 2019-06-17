@@ -4,6 +4,8 @@
 #define LINE_LENGTH 21
 #define DISPLAY_WIDTH 128
 #define DISPLAY_HEIGHT 64
+#define STATUS_BAR_HEIGHT 13
+
 #define BATTERY_READ_PIN 36
 
 WiFiUDP ntpUDP;
@@ -56,7 +58,7 @@ void text(const String& str) {
   }
 
   //draw the current line
-  display.drawString(pointer_x, (pointer_line * LINE_HEIGHT) + 16, this_line);
+  display.drawString(pointer_x, (pointer_line * LINE_HEIGHT) + STATUS_BAR_HEIGHT, this_line);
   // move the pointer to the end of the line
   pointer_x += display.getStringWidth(this_line.c_str());
 
