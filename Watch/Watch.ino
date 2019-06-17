@@ -1,6 +1,5 @@
 #include <EspMQTTClient.h>
 
-
 #include "WiFiLogo.h"
 #include "SSD1306.h"
 #include "Message.h"
@@ -16,8 +15,11 @@
 #define TOUCHWAITTIME 300
 
 // wifi network to connect to
-#define WIFI_SSID "davidhotspot"
-#define WIFI_PASS "1234hoedjevan"
+//#define WIFI_SSID "davidhotspot"
+//#define WIFI_PASS "1234hoedjevan"
+
+#define WIFI_SSID "Sitecom30EE9C"
+#define WIFI_PASS "VTEXXJN6ETRT"
 
 // broker to connect to
 #define BROKER_ADDR "51.83.42.157"
@@ -52,8 +54,6 @@ long effectMillis = 0; // keep time for the animation interval
 
 long interactionMillis = 0; // keep time for the button press interval
 
-long batteryCheckMillis = 0; // keep time for the battery percentage check
-
 // Connect to the MQTT broker
 EspMQTTClient client(
   WIFI_SSID,
@@ -76,7 +76,7 @@ void setup() {
   // connect to wifi to get the time:
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   Serial.print("Connecting to WiFi");
-  client.enableDebuggingMessages(); // Enable debugging messages sent to serial output
+  client.enableDebuggingMessages();
 
   display.clear();
   text("Connecting");
@@ -120,12 +120,6 @@ void onConnectionEstablished()
 
 
 void loop() {
-  // check the battery percentage every 5 seconds
-  if(millis() - batteryCheckMillis >= 5000) {
-    percentage = calculateBatteryPercentage();
-    batteryCheckMillis = millis();
-  }
-
   // update every 50 milliseconds
   if (millis() - prevMillis >= UPDATEINTERVAL) {
     timeClient.update();

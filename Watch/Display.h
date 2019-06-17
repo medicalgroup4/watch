@@ -1,5 +1,3 @@
-#include <WiFi.h>
-#include <WiFiUDP.h>
 #include <NTPClient.h>
 
 #define LINE_HEIGHT 10
@@ -10,8 +8,6 @@
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", 7200);
-
-int percentage;
 
 
 SSD1306 display(0x3c, 21, 22);
@@ -80,7 +76,7 @@ void show_message_index() {
 }
 
 // display the bar which tells the time
-void show_status_bar(String formattedTime, int percentage) {
+void show_status_bar(String formattedTime) {
   display.drawString(0, 0, formattedTime);
 }
 
@@ -97,10 +93,10 @@ void updateScreen(const String& location, const String& severity, const String& 
 
 // update the full screen
 void updateScreen() {
-  show_status_bar(timeClient.getFormattedTime(), percentage);
+  show_status_bar(timeClient.getFormattedTime());
   if (message_amt == 0) {
     reset_pointer();
-    text("No Messages!");
+    text("No Messages");
     return;
   }
 
@@ -110,21 +106,4 @@ void updateScreen() {
 
   updateScreen(location, severity, message);
 }
-
-// calculate the battery percentage based on an analogread from the battery
-int calculateBatteryPercentage() {
-  float ADC = analogRead(BATTERY_READ_PIN) * (13.3 / 10.0);
-  float voltage = ADC * (3.3 / 4095.0);
-
-  Serial.println("ADC value = " + String(ADC));
-  Serial.println("voltage = " + String(voltage));
-
-  int return_value = (50/.6) * voltage - 250;
-  if(return_value < 0) return_value = 0;
-  if(return_value > 100) return_value = 100;
-  
-  return return_value;
-
-}
-
 
