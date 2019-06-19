@@ -18,8 +18,14 @@
 //#define WIFI_SSID "davidhotspot"
 //#define WIFI_PASS "1234hoedjevan"
 
-#define WIFI_SSID "Sitecom30EE9C"
-#define WIFI_PASS "VTEXXJN6ETRT"
+#define WIFI_SSID "Banaan"
+#define WIFI_PASS "hoi45678"
+
+//#define WIFI_SSID "Sitecom30EE9C"
+//#define WIFI_PASS "VTEXXJN6ETRT"
+
+//#define WIFI_SSID "Hutspotje"
+//#define WIFI_PASS "Securry123"
 
 // broker to connect to
 #define BROKER_ADDR "51.83.42.157"
@@ -211,8 +217,8 @@ void performEffects() {
 
 // test which buttons are being touched
 void detectButtons() {
-  Serial.println("Touchread T1: " + touchRead(T1));
-  Serial.println("Touchread T2: " + touchRead(T2));
+  Serial.println("Touchread T1: " + String(touchRead(T1)));
+  Serial.println("Touchread T2: " + String(touchRead(T2)));
   
   if (touchRead(T1) < TOUCHTHRESHOLD) {
     if (leftTest)
